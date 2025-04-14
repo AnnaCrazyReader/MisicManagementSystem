@@ -62,12 +62,20 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202504142006550_InitialCreate.cs" />
+    <Compile Include="Migrations\202504142006550_InitialCreate.Designer.cs">
+      <DependentUpon>202504142006550_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Artist.cs" />
     <Compile Include="Models\Album.cs" />
     <Compile Include="Models\MusicDbContext.cs" />
     <Compile Include="Models\Song.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Migrations\202504142006550_InitialCreate.resx">
+      <DependentUpon>202504142006550_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

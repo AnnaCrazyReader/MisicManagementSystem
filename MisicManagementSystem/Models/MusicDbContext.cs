@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MisicManagementSystem.Models
+namespace MusicManagementSystem.Models
 {
-    internal class MusicDbContext
+    internal class MusicDbContext : DbContext
     {
-        public MusicDbContext() : base("name=MusicDbConnection")
+        public MusicDbContext() : base("MusicDbConnection")
         {
         }
 
