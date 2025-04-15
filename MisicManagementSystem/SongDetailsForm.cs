@@ -9,7 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MusicManagementSystem.Models;
-using NAudio.Wave;
+using AxWMPLib;
+using WMPLib;
 
 namespace MusicManagementSystem
 {
@@ -19,18 +20,34 @@ namespace MusicManagementSystem
         private Song currentSong;
         private string mp3FilePath = string.Empty;
         public bool ReadOnly { get; set; } = false;
+        private AxWMPLib.AxWindowsMediaPlayer mediaPlayer;
 
 
         public SongDetailsForm(Song song = null)
         {
             InitializeComponent();
 
+            // Инициализация медиаплеера
+            mediaPlayer = new AxWindowsMediaPlayer();
+            mediaPlayer.Dock = DockStyle.None;
+            mediaPlayer.Location = new System.Drawing.Point(20, 300);
+            mediaPlayer.Name = "mediaPlayer";
+            mediaPlayer.Size = new System.Drawing.Size(450, 100);
+            this.Controls.Add(mediaPlayer);
+
+            // Подписываемся на событие создания дескриптора
+            mediaPlayer.HandleCreated += MediaPlayer_HandleCreated;
+
+            // Настройка дополнительных параметров
+            mediaPlayer.CreateControl(); // Важно для создания элемента управления
+            
+
             // Заполняем комбобокс с исполнителями
             LoadArtists();
             numReleaseYear.Minimum = 1900;
             numReleaseYear.Maximum = 2030;
             numPlayCount.Minimum = 0;
-
+          
             if (song != null)
             {
                 // Если передана существующая песня
@@ -69,6 +86,14 @@ namespace MusicManagementSystem
             // Подписываемся на событие загрузки формы
             this.Load += SongDetailsForm_Load;
         }
+
+        private void MediaPlayer_HandleCreated(object sender, EventArgs e)
+        {
+            // Настройки можно безопасно задавать только после создания дескриптора
+            mediaPlayer.settings.autoStart = false;
+            mediaPlayer.uiMode = "mini";
+        }
+
 
         private void LoadArtists()
         {
@@ -224,6 +249,15 @@ namespace MusicManagementSystem
                                       "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
+
+                // После успешной загрузки предлагаем воспроизвести
+                if (MessageBox.Show("MP3 файл загружен. Воспроизвести?",
+                                  "Информация", MessageBoxButtons.YesNo,
+                                  MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    PlayMp3File();
+                }
+
             }
         }
 
@@ -243,5 +277,32 @@ namespace MusicManagementSystem
             }
         }
 
+        private void PlayMp3File()
+        {
+            if (string.IsNullOrEmpty(mp3FilePath) || !File.Exists(mp3FilePath))
+            {
+                MessageBox.Show("Файл MP3 не выбран или не существует.",
+                              "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            try
+            {
+                // Устанавливаем URL для проигрывания (локальный файл)
+                mediaPlayer.URL = mp3FilePath;
+                // Включаем автоматическое воспроизведение
+                mediaPlayer.Ctlcontrols.play();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка воспроизведения: {ex.Message}",
+                              "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnPlayMp3_Click(object sender, EventArgs e)
+        {
+            PlayMp3File();
+        }
     }
 }

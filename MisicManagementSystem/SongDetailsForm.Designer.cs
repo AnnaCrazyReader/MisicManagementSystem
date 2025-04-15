@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SongDetailsForm));
             this.txtSongName = new System.Windows.Forms.TextBox();
             this.txtAlbumTitle = new System.Windows.Forms.TextBox();
             this.cmbArtist = new System.Windows.Forms.ComboBox();
@@ -45,10 +46,13 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.btmLoadMP3 = new System.Windows.Forms.Button();
+            this.axWindowsMediaPlayer1 = new AxWMPLib.AxWindowsMediaPlayer();
+            this.btnPlayMp3 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numReleaseYear)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numDurationMin)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numDurationSec)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPlayCount)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).BeginInit();
             this.SuspendLayout();
             // 
             // txtSongName
@@ -103,7 +107,7 @@
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(160, 333);
+            this.btnSave.Location = new System.Drawing.Point(241, 362);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
             this.btnSave.TabIndex = 7;
@@ -194,11 +198,32 @@
             this.btmLoadMP3.UseVisualStyleBackColor = true;
             this.btmLoadMP3.Click += new System.EventHandler(this.btmLoadMP3_Click);
             // 
+            // axWindowsMediaPlayer1
+            // 
+            this.axWindowsMediaPlayer1.Enabled = true;
+            this.axWindowsMediaPlayer1.Location = new System.Drawing.Point(344, 42);
+            this.axWindowsMediaPlayer1.Name = "axWindowsMediaPlayer1";
+            this.axWindowsMediaPlayer1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axWindowsMediaPlayer1.OcxState")));
+            this.axWindowsMediaPlayer1.Size = new System.Drawing.Size(264, 314);
+            this.axWindowsMediaPlayer1.TabIndex = 17;
+            // 
+            // btnPlayMp3
+            // 
+            this.btnPlayMp3.Location = new System.Drawing.Point(15, 362);
+            this.btnPlayMp3.Name = "btnPlayMp3";
+            this.btnPlayMp3.Size = new System.Drawing.Size(140, 23);
+            this.btnPlayMp3.TabIndex = 18;
+            this.btnPlayMp3.Text = "Прослухати пісню";
+            this.btnPlayMp3.UseVisualStyleBackColor = true;
+            this.btnPlayMp3.Click += new System.EventHandler(this.btnPlayMp3_Click);
+            // 
             // SongDetailsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(652, 450);
+            this.Controls.Add(this.btnPlayMp3);
+            this.Controls.Add(this.axWindowsMediaPlayer1);
             this.Controls.Add(this.btmLoadMP3);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.label6);
@@ -223,6 +248,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numDurationMin)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numDurationSec)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPlayCount)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -247,5 +273,7 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button btmLoadMP3;
+        private AxWMPLib.AxWindowsMediaPlayer axWindowsMediaPlayer1;
+        private System.Windows.Forms.Button btnPlayMp3;
     }
 }
