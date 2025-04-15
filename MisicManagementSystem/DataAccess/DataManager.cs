@@ -27,15 +27,18 @@ namespace MusicManagementSystem
             // Сортування за різними полями
             switch (sortField)
             {
-                case "name":
+                case "artist_name":
                     return ascending
                         ? db.Artists.OrderBy(a => a.artist_name).ToList()
                         : db.Artists.OrderByDescending(a => a.artist_name).ToList();
-                case "country":
+                case "country_origin":
                     return ascending
                         ? db.Artists.OrderBy(a => a.country_origin).ToList()
                         : db.Artists.OrderByDescending(a => a.country_origin).ToList();
-                // Додайте інші поля для сортування
+                case "musical_genre":
+                    return ascending
+                        ? db.Artists.OrderBy(a => a.musical_genre).ToList()
+                        : db.Artists.OrderByDescending(a => a.musical_genre).ToList();
                 default:
                     return db.Artists.ToList();
             }
@@ -119,27 +122,15 @@ namespace MusicManagementSystem
             // Сортировка по различным полям
             switch (sortField)
             {
-                case "name":
+                case "track_name":
                     return ascending
                         ? db.Songs.Include("Artist").OrderBy(s => s.track_name).ToList()
                         : db.Songs.Include("Artist").OrderByDescending(s => s.track_name).ToList();
-                case "year":
-                    return ascending
-                        ? db.Songs.Include("Artist").OrderBy(s => s.release_year).ToList()
-                        : db.Songs.Include("Artist").OrderByDescending(s => s.release_year).ToList();
-                case "album":
+                case "album_title":
                     return ascending
                         ? db.Songs.Include("Artist").OrderBy(s => s.album_title).ToList()
                         : db.Songs.Include("Artist").OrderByDescending(s => s.album_title).ToList();
-                case "duration":
-                    return ascending
-                        ? db.Songs.Include("Artist").OrderBy(s => s.duration).ToList()
-                        : db.Songs.Include("Artist").OrderByDescending(s => s.duration).ToList();
-                case "plays":
-                    return ascending
-                        ? db.Songs.Include("Artist").OrderBy(s => s.play_count).ToList()
-                        : db.Songs.Include("Artist").OrderByDescending(s => s.play_count).ToList();
-                case "artist":
+                case "artist_name":
                     return ascending
                         ? db.Songs.Include("Artist").OrderBy(s => s.Artist.artist_name).ToList()
                         : db.Songs.Include("Artist").OrderByDescending(s => s.Artist.artist_name).ToList();
@@ -170,6 +161,7 @@ namespace MusicManagementSystem
 
             return query.ToList();
         }
+
 
         public List<Song> SearchSongs(string searchTerm)
         {

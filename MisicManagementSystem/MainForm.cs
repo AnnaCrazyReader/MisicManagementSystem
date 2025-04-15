@@ -16,31 +16,53 @@ namespace MusicManagementSystem
     {
         private DataManager dataManager;
 
+
         public MainForm()
         {
             InitializeComponent();
-            
+
             dataManager = new DataManager();
+
 
             // Налаштування DataGridView
             SetupDataGridViews();
+
+            // Ініціалізація комбобокса сортування
+            InitializeSortingControls();
 
             // Завантаження даних при запуску
             LoadArtistsData();
             LoadSongsData();
 
             // Додавання обробників подій для кнопок
-            btnAddArtist.Click += btnAddArtist_Click;
-            btnEditArtist.Click += btnEditArtist_Click;
-            btnDeleteArtist.Click += btnDeleteArtist_Click;
-            btnViewArtistDetails.Click += btnViewArtistDetails_Click;
+            cmbSortField.SelectedIndexChanged += cmbSortField_SelectedIndexChanged;
+            chkSortAscending.CheckedChanged += chkSortAscending_CheckedChanged;
+        }
 
+        private void InitializeSortingControls()
+        {
+            // Очистіть попередні елементи перед додаванням нових
+            cmbSortField.Items.Clear();
+            // Додавайте українські назви полів сортування
+            cmbSortField.Items.AddRange(new object[] { "Назва", "Виконавець", "Альбом" });
+            cmbSortField.SelectedIndex = 0;
+            chkSortAscending.Checked = true;
         }
 
         private void SetupDataGridViews()
         {
+            // Налаштування для виконавців
+            SetupArtistsDataGridView();
+
+            // Налаштування для пісень
+            SetupSongsDataGridView();
+        }
+
+        private void SetupArtistsDataGridView()
+        {
             // Налаштування колонок для виконавців
             dgvArtists.AutoGenerateColumns = false;
+            dgvArtists.Columns.Clear(); // Очищення існуючих колонок
 
             dgvArtists.Columns.Add(new DataGridViewTextBoxColumn
             {
@@ -59,15 +81,8 @@ namespace MusicManagementSystem
             dgvArtists.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "country_origin",
-                HeaderText = "Країна виконавця",
+                HeaderText = "Країна походження",
                 Width = 150
-            });
-
-            dgvArtists.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = "birth_year",
-                HeaderText = "Дата народження",
-                Width = 100
             });
 
             dgvArtists.Columns.Add(new DataGridViewTextBoxColumn
@@ -77,16 +92,18 @@ namespace MusicManagementSystem
                 Width = 100
             });
 
-            // Додайте інші колонки
-            // ...
-
-            // Аналогічно для пісень
-            // ...
+            dgvArtists.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "birth_year",
+                HeaderText = "Рік заснування",
+                Width = 100
+            });
         }
 
         private void SetupSongsDataGridView()
         {
             dgvSongs.AutoGenerateColumns = false;
+            dgvSongs.Columns.Clear(); // Очищення існуючих колонок
 
             dgvSongs.Columns.Add(new DataGridViewTextBoxColumn
             {
@@ -98,50 +115,53 @@ namespace MusicManagementSystem
             dgvSongs.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "track_name",
-                HeaderText = "Название",
+                HeaderText = "Назва пісні",
                 Width = 150
             });
 
             dgvSongs.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "Artist.artist_name",
-                HeaderText = "Исполнитель",
-                Width = 120
+                HeaderText = "Виконавець",
+                Width = 150
             });
 
             dgvSongs.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "album_title",
                 HeaderText = "Альбом",
-                Width = 120
-            });
-
-            dgvSongs.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = "release_year",
-                HeaderText = "Год",
-                Width = 60
+                Width = 150
             });
 
             dgvSongs.Columns.Add(new DataGridViewTextBoxColumn
             {
                 DataPropertyName = "duration",
-                HeaderText = "Длительность",
+                HeaderText = "Тривалість",
                 Width = 90,
                 DefaultCellStyle = new DataGridViewCellStyle
                 {
                     Format = "mm\\:ss"
                 }
             });
-
-            dgvSongs.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = "play_count",
-                HeaderText = "Прослушивания",
-                Width = 100
-            });
         }
 
+
+        private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Оновлення списку полів сортування при зміні вкладки
+            cmbSortField.Items.Clear();
+
+            if (tabControl1.SelectedTab == tabArtists)
+            {
+                cmbSortField.Items.AddRange(new object[] { "Ім'я виконавця", "Країна", "Жанр" });
+            }
+            else if (tabControl1.SelectedTab == tabSongs)
+            {
+                cmbSortField.Items.AddRange(new object[] { "Назва пісні", "Альбом", "Виконавець" });
+            }
+
+            cmbSortField.SelectedIndex = 0;
+        }
 
         private void LoadArtistsData(string sortField = null, bool ascending = true)
         {
@@ -170,6 +190,8 @@ namespace MusicManagementSystem
         }
 
 
+        
+
         private void btnEditArtist_Click(object sender, EventArgs e)
         {
             if (dgvArtists.SelectedRows.Count == 0) return;
@@ -194,8 +216,16 @@ namespace MusicManagementSystem
                                 "Підтвердження видалення",
                                 MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
-                dataManager.DeleteArtist(selectedArtist.artist_id);
-                LoadArtistsData();
+                try
+                {
+                    dataManager.DeleteArtist(selectedArtist.artist_id);
+                    LoadArtistsData();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Помилка при видаленні виконавця: {ex.Message}",
+                        "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
@@ -261,6 +291,82 @@ namespace MusicManagementSystem
             var form = new SongDetailsForm(selectedSong);
             form.ReadOnly = true;  // Режим только для чтения
             form.ShowDialog();
+        }
+
+        private void btnSearch_Click(object sender, EventArgs e)
+        {
+            var searchTerm = txtSongSearch.Text.Trim();
+
+            // Визначення активної вкладки
+            if (tabControl1.SelectedTab == tabArtists)
+            {
+                // Пошук виконавців
+                if (string.IsNullOrEmpty(searchTerm))
+                {
+                    LoadArtistsData();
+                }
+                else
+                {
+                    dgvArtists.DataSource = dataManager.SearchArtists(searchTerm);
+                }
+            }
+            else if (tabControl1.SelectedTab == tabSongs)
+            {
+                // Пошук пісень
+                if (string.IsNullOrEmpty(searchTerm))
+                {
+                    LoadSongsData();
+                }
+                else
+                {
+                    dgvSongs.DataSource = dataManager.SearchSongs(searchTerm);
+                    // Переконайтеся, що метод SearchSongs існує у класі DataManager
+                }
+            }
+        }
+
+        private void chkSortAscending_CheckedChanged(object sender, EventArgs e)
+        {
+            ApplySorting();
+        }
+
+        private void cmbSortField_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ApplySorting();
+        }
+
+        private void ApplySorting()
+        {
+            if (cmbSortField.SelectedIndex < 0) return;
+
+            string sortField;
+            // Визначення активної вкладки
+            if (tabControl1.SelectedTab == tabArtists)
+            {
+                // Сортування виконавців
+                switch (cmbSortField.SelectedIndex)
+                {
+                    case 0: sortField = "artist_name"; break;
+                    case 1: sortField = "country_origin"; break;
+                    case 2: sortField = "musical_genre"; break;
+                    default: sortField = "artist_name"; break;
+                }
+
+                LoadArtistsData(sortField, chkSortAscending.Checked);
+            }
+            else if (tabControl1.SelectedTab == tabSongs)
+            {
+                // Сортування пісень
+                switch (cmbSortField.SelectedIndex)
+                {
+                    case 0: sortField = "track_name"; break;
+                    case 1: sortField = "album_title"; break;
+                    case 2: sortField = "artist_name"; break;
+                    default: sortField = "track_name"; break;
+                }
+
+                LoadSongsData(sortField, chkSortAscending.Checked);
+            }
         }
     }
 }

@@ -10,8 +10,9 @@ namespace MusicManagementSystem.Models
 {
     internal class MusicDbContext : DbContext
     {
-        public MusicDbContext() : base("MusicDbConnection")
+        public MusicDbContext() : base("name=MusicDbConnection")
         {
+            this.Configuration.LazyLoadingEnabled = true;
         }
 
         public DbSet<Artist> Artists { get; set; }
