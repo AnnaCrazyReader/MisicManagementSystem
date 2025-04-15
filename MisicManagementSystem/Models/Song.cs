@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MusicManagementSystem.Models
 {
-    internal class Song
+    public class Song
     {
         public int song_id { get; set; }
         public string track_name { get; set; }

@@ -62,6 +62,7 @@
     <Compile Include="ArtistDetailsForm.Designer.cs">
       <DependentUpon>ArtistDetailsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="DataAccess\DataManager.cs" />
     <Compile Include="SongDetailsForm.cs">
       <SubType>Form</SubType>
     </Compile>
