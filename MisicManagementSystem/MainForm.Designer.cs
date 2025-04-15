@@ -79,6 +79,7 @@ namespace MisicManagementSystem
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.exitToolStripMenuItem.Text = "Вихід";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -185,6 +186,7 @@ namespace MisicManagementSystem
             this.btnAddArtist.TabIndex = 0;
             this.btnAddArtist.Text = "Додати Виконавці";
             this.btnAddArtist.UseVisualStyleBackColor = true;
+            this.btnAddArtist.Click += new System.EventHandler(this.btnAddArtist_Click);
             // 
             // btnEditArtist
             // 
@@ -194,6 +196,7 @@ namespace MisicManagementSystem
             this.btnEditArtist.TabIndex = 1;
             this.btnEditArtist.Text = "Редагувати";
             this.btnEditArtist.UseVisualStyleBackColor = true;
+            this.btnEditArtist.Click += new System.EventHandler(this.btnEditArtist_Click);
             // 
             // btnDeleteArtist
             // 
@@ -203,6 +206,7 @@ namespace MisicManagementSystem
             this.btnDeleteArtist.TabIndex = 2;
             this.btnDeleteArtist.Text = "Видалити";
             this.btnDeleteArtist.UseVisualStyleBackColor = true;
+            this.btnDeleteArtist.Click += new System.EventHandler(this.btnDeleteArtist_Click);
             // 
             // btnViewArtistDetails
             // 
@@ -212,6 +216,7 @@ namespace MisicManagementSystem
             this.btnViewArtistDetails.TabIndex = 3;
             this.btnViewArtistDetails.Text = "Профіль";
             this.btnViewArtistDetails.UseVisualStyleBackColor = true;
+            this.btnViewArtistDetails.Click += new System.EventHandler(this.btnViewArtistDetails_Click);
             // 
             // btnAddSong
             // 

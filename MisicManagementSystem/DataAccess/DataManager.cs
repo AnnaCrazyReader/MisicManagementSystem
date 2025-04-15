@@ -41,6 +41,7 @@ namespace MusicManagementSystem
             }
         }
 
+
         public List<Artist> FilterArtists(string name, string country, string genre)
         {
             var query = db.Artists.AsQueryable();
@@ -57,6 +58,30 @@ namespace MusicManagementSystem
 
             return query.ToList();
         }
+
+        public void DeleteArtist(int artistId)
+{
+    // Находим артиста в базе данных
+    var artist = db.Artists.Find(artistId);
+    
+    if (artist != null)
+    {
+        // Проверяем наличие связанных песен
+        var songs = db.Songs.Where(s => s.artist_id == artistId).ToList();
+        
+        // Удаляем связанные песни (если есть)
+        if (songs.Any())
+        {
+            db.Songs.RemoveRange(songs);
+        }
+        
+        // Удаляем самого артиста
+        db.Artists.Remove(artist);
+        
+        // Сохраняем изменения в базе данных
+        db.SaveChanges();
+    }
+}
 
         // Аналогічні методи для пісень
         // ...
@@ -82,7 +107,43 @@ namespace MusicManagementSystem
                 })
                 .ToList();
         }
+
+        // В класс DataManager добавьте методы для работы с песнями
+        public List<Song> GetAllSongs()
+        {
+            return db.Songs.ToList();
+        }
+
+        public List<Song> GetSongsSorted(string sortField, bool ascending)
+        {
+            // Сортировка по различным полям
+            switch (sortField)
+            {
+                case "name":
+                    return ascending
+                        ? db.Songs.OrderBy(s => s.track_name).ToList()
+                        : db.Songs.OrderByDescending(s => s.track_name).ToList();
+                case "year":
+                    return ascending
+                        ? db.Songs.OrderBy(s => s.release_year).ToList()
+                        : db.Songs.OrderByDescending(s => s.release_year).ToList();
+                case "duration":
+                    return ascending
+                        ? db.Songs.OrderBy(s => s.duration).ToList()
+                        : db.Songs.OrderByDescending(s => s.duration).ToList();
+                case "album":
+                    return ascending
+                        ? db.Songs.OrderBy(s => s.album_title).ToList()
+                        : db.Songs.OrderByDescending(s => s.album_title).ToList();
+                default:
+                    return db.Songs.ToList();
+            }
+        }
     }
+
+
+
+
 
     // Допоміжний клас для розрахункового поля
     public class ArtistWithSongCount

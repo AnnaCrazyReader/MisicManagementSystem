@@ -7,8 +7,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{A5FB7FE5-7083-4B4A-9C3F-0B1F5D9C833F}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>MisicManagementSystem</RootNamespace>
-    <AssemblyName>MisicManagementSystem</AssemblyName>
+    <RootNamespace>MusicManagementSystem</RootNamespace>
+    <AssemblyName>MusicManagementSystem</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -103,6 +103,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="SongDetailsForm.resx">
       <DependentUpon>SongDetailsForm.cs</DependentUpon>
