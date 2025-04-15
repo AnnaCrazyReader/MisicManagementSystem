@@ -1,4 +1,4 @@
-﻿namespace MisicManagementSystem.Migrations
+﻿namespace MusicManagementSystem.Migrations
 {
     using System;
     using System.Data.Entity;

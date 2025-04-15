@@ -7,13 +7,13 @@ namespace MusicManagementSystem.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.5.1")]
-    public sealed partial class InitialCreate : IMigrationMetadata
+    public sealed partial class AddMp3FilePath : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(InitialCreate));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AddMp3FilePath));
         
         string IMigrationMetadata.Id
         {
-            get { return "202504142006550_InitialCreate"; }
+            get { return "202504151004131_AddMp3FilePath"; }
         }
         
         string IMigrationMetadata.Source

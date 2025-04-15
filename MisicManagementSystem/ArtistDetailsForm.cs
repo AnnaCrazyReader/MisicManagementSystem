@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Data.Entity;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -59,6 +60,9 @@ namespace MusicManagementSystem
 
                 // Скрываем кнопку сохранения
                 btnSave.Visible = false;
+
+                // Скрываем кнопку завантаження фото
+                btnLoadPic.Visible = false;
 
                 // Меняем заголовок формы
                 this.Text = "Просмотр исполнителя";
@@ -126,6 +130,60 @@ namespace MusicManagementSystem
             }
 
 
+        }
+
+        private void btnLoadPic_Click(object sender, EventArgs e)
+        {
+            // Создаем диалог выбора файла
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                // Настраиваем диалог
+                openFileDialog.Title = "Выберите фото исполнителя";
+                openFileDialog.Filter = "Изображения|*.jpg;*.jpeg;*.png;*.gif;*.bmp|Все файлы|*.*";
+                openFileDialog.FilterIndex = 1;
+                openFileDialog.RestoreDirectory = true;
+
+                // Если пользователь выбрал файл и нажал OK
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        // Получаем путь к выбранному файлу
+                        string selectedFilePath = openFileDialog.FileName;
+
+                        // Создаем папку для хранения изображений, если она не существует
+                        string appDirectory = Application.StartupPath;
+                        string imageDirectory = Path.Combine(appDirectory, "Images");
+
+                        if (!Directory.Exists(imageDirectory))
+                        {
+                            Directory.CreateDirectory(imageDirectory);
+                        }
+
+                        // Формируем имя файла (используем ID артиста и оригинальное имя файла)
+                        string fileName = $"{DateTime.Now.Ticks}_{Path.GetFileName(selectedFilePath)}";
+                        string destFilePath = Path.Combine(imageDirectory, fileName);
+
+                        // Копируем файл в папку приложения
+                        File.Copy(selectedFilePath, destFilePath, true);
+
+                        // Сохраняем относительный путь в модели
+                        currentArtist.profile_photo = Path.Combine("Images", fileName);
+
+                        // Отображаем изображение в PictureBox
+                        pictureBox1.Image = Image.FromFile(destFilePath);
+                        pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+
+                        MessageBox.Show("Фото успешно загружено!", "Информация",
+                                       MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при загрузке фото: {ex.Message}",
+                                       "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
         }
     }
 }

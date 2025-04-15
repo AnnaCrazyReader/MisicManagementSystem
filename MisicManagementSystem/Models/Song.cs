@@ -15,6 +15,8 @@ namespace MusicManagementSystem.Models
         public int play_count { get; set; }
         public string album_title { get; set; }
 
+        public string mp3_file_path { get; set; }
+
         // Зовнішній ключ
         public int artist_id { get; set; }
         public virtual Artist Artist { get; set; }

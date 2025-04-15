@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace MisicManagementSystem
+namespace MusicManagementSystem
 {
     partial class MainForm
     {
@@ -226,6 +226,7 @@ namespace MisicManagementSystem
             this.btnAddSong.TabIndex = 0;
             this.btnAddSong.Text = "Додати пісню";
             this.btnAddSong.UseVisualStyleBackColor = true;
+            this.btnAddSong.Click += new System.EventHandler(this.btnAddSong_Click);
             // 
             // btnEditSong
             // 
@@ -235,6 +236,7 @@ namespace MisicManagementSystem
             this.btnEditSong.TabIndex = 1;
             this.btnEditSong.Text = "Редагувати";
             this.btnEditSong.UseVisualStyleBackColor = true;
+            this.btnEditSong.Click += new System.EventHandler(this.btnEditSong_Click);
             // 
             // btnDeleteSong
             // 
@@ -244,6 +246,7 @@ namespace MisicManagementSystem
             this.btnDeleteSong.TabIndex = 2;
             this.btnDeleteSong.Text = "Видалити";
             this.btnDeleteSong.UseVisualStyleBackColor = true;
+            this.btnDeleteSong.Click += new System.EventHandler(this.btnDeleteSong_Click);
             // 
             // btnViewSongDetails
             // 
@@ -253,6 +256,7 @@ namespace MisicManagementSystem
             this.btnViewSongDetails.TabIndex = 3;
             this.btnViewSongDetails.Text = "Профіль";
             this.btnViewSongDetails.UseVisualStyleBackColor = true;
+            this.btnViewSongDetails.Click += new System.EventHandler(this.btnViewSongDetails_Click);
             // 
             // MainForm
             // 

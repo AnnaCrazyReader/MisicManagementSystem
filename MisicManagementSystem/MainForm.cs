@@ -10,7 +10,7 @@ using System.Windows.Forms;
 using MusicManagementSystem;
 using MusicManagementSystem.Models;
 
-namespace MisicManagementSystem
+namespace MusicManagementSystem
 {
     public partial class MainForm : Form
     {
@@ -84,6 +84,65 @@ namespace MisicManagementSystem
             // ...
         }
 
+        private void SetupSongsDataGridView()
+        {
+            dgvSongs.AutoGenerateColumns = false;
+
+            dgvSongs.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "song_id",
+                HeaderText = "ID",
+                Width = 50
+            });
+
+            dgvSongs.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "track_name",
+                HeaderText = "Название",
+                Width = 150
+            });
+
+            dgvSongs.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Artist.artist_name",
+                HeaderText = "Исполнитель",
+                Width = 120
+            });
+
+            dgvSongs.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "album_title",
+                HeaderText = "Альбом",
+                Width = 120
+            });
+
+            dgvSongs.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "release_year",
+                HeaderText = "Год",
+                Width = 60
+            });
+
+            dgvSongs.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "duration",
+                HeaderText = "Длительность",
+                Width = 90,
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    Format = "mm\\:ss"
+                }
+            });
+
+            dgvSongs.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "play_count",
+                HeaderText = "Прослушивания",
+                Width = 100
+            });
+        }
+
+
         private void LoadArtistsData(string sortField = null, bool ascending = true)
         {
             if (string.IsNullOrEmpty(sortField))
@@ -153,6 +212,55 @@ namespace MisicManagementSystem
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
+        }
+
+        private void btnAddSong_Click(object sender, EventArgs e)
+        {
+            var form = new SongDetailsForm();
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                // Обновляем данные после добавления
+                LoadSongsData();
+            }
+        }
+
+        private void btnEditSong_Click(object sender, EventArgs e)
+        {
+            if (dgvSongs.SelectedRows.Count == 0) return;
+
+            var selectedSong = dgvSongs.SelectedRows[0].DataBoundItem as Song;
+            var form = new SongDetailsForm(selectedSong);
+
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                // Обновляем данные
+                LoadSongsData();
+            }
+        }
+
+        private void btnDeleteSong_Click(object sender, EventArgs e)
+        {
+            if (dgvSongs.SelectedRows.Count == 0) return;
+
+            var selectedSong = dgvSongs.SelectedRows[0].DataBoundItem as Song;
+
+            if (MessageBox.Show($"Вы уверены, что хотите удалить песню '{selectedSong.track_name}'?",
+                              "Подтверждение удаления",
+                              MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                dataManager.DeleteSong(selectedSong.song_id);
+                LoadSongsData();
+            }
+        }
+
+        private void btnViewSongDetails_Click(object sender, EventArgs e)
+        {
+            if (dgvSongs.SelectedRows.Count == 0) return;
+
+            var selectedSong = dgvSongs.SelectedRows[0].DataBoundItem as Song;
+            var form = new SongDetailsForm(selectedSong);
+            form.ReadOnly = true;  // Режим только для чтения
+            form.ShowDialog();
         }
     }
 }
