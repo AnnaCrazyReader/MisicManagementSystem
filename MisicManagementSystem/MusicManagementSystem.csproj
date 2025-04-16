@@ -97,6 +97,7 @@
     <Compile Include="Migrations\202504151004131_AddMp3FilePath.Designer.cs">
       <DependentUpon>202504151004131_AddMp3FilePath.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\SongViewModel.cs" />
     <Compile Include="SongDetailsForm.cs">
       <SubType>Form</SubType>
     </Compile>

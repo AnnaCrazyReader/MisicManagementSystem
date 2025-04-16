@@ -121,7 +121,7 @@ namespace MusicManagementSystem
 
             dgvSongs.Columns.Add(new DataGridViewTextBoxColumn
             {
-                DataPropertyName = "Artist.artist_name",
+                DataPropertyName = "artist_name",
                 HeaderText = "Виконавець",
                 Width = 150
             });
@@ -258,13 +258,25 @@ namespace MusicManagementSystem
         {
             if (dgvSongs.SelectedRows.Count == 0) return;
 
-            var selectedSong = dgvSongs.SelectedRows[0].DataBoundItem as Song;
-            var form = new SongDetailsForm(selectedSong);
+            var selectedViewModel = dgvSongs.SelectedRows[0].DataBoundItem as SongViewModel;
 
-            if (form.ShowDialog() == DialogResult.OK)
+            // Отримуємо повний об'єкт Song з бази даних
+            Song selectedSong = null;
+            using (var context = new MusicDbContext())
             {
-                // Обновляем данные
-                LoadSongsData();
+                selectedSong = context.Songs
+                    .Include("Artist")
+                    .FirstOrDefault(s => s.song_id == selectedViewModel.song_id);
+            }
+
+            if (selectedSong != null)
+            {
+                var form = new SongDetailsForm(selectedSong);
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    // Оновлюємо дані
+                    LoadSongsData();
+                }
             }
         }
 

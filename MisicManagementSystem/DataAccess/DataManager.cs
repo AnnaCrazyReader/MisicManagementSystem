@@ -111,39 +111,84 @@ namespace MusicManagementSystem
                 .ToList();
         }
 
-        // В класс DataManager добавьте методы для работы с песнями
-        public List<Song> GetAllSongs()
+        
+        /*public List<Song> GetAllSongs()
         {
             return db.Songs.Include("Artist").ToList();
-        }
+        }*/
 
-        public List<Song> GetSongsSorted(string sortField, bool ascending)
+
+        /*public List<Song> GetSongsSorted(string sortField, bool ascending)
         {
-            // Сортировка по различным полям
+            var query = db.Songs.Include("Artist").AsQueryable();
+            // Сортування за різними полями
             switch (sortField)
             {
                 case "track_name":
-                    return ascending
-                        ? db.Songs.Include("Artist").OrderBy(s => s.track_name).ToList()
-                        : db.Songs.Include("Artist").OrderByDescending(s => s.track_name).ToList();
+                    query = ascending
+                        ? query.OrderBy(s => s.track_name)
+                        : query.OrderByDescending(s => s.track_name);
+                    break;
                 case "album_title":
-                    return ascending
-                        ? db.Songs.Include("Artist").OrderBy(s => s.album_title).ToList()
-                        : db.Songs.Include("Artist").OrderByDescending(s => s.album_title).ToList();
+                    query = ascending
+                        ? query.OrderBy(s => s.album_title)
+                        : query.OrderByDescending(s => s.album_title);
+                    break;
                 case "artist_name":
-                    return ascending
-                        ? db.Songs.Include("Artist").OrderBy(s => s.Artist.artist_name).ToList()
-                        : db.Songs.Include("Artist").OrderByDescending(s => s.Artist.artist_name).ToList();
-                default:
-                    return db.Songs.Include("Artist").ToList();
+                    query = ascending
+                        ? query.OrderBy(s => s.Artist.artist_name)
+                        : query.OrderByDescending(s => s.Artist.artist_name);
+                    break;
             }
+
+        }*/
+
+        public List<SongViewModel> GetSongsSorted(string sortField, bool ascending)
+        {
+            // Базовий запит
+            var query = db.Songs.Include("Artist").AsQueryable();
+
+            // Сортування за різними полями
+            switch (sortField)
+            {
+                case "track_name":
+                    query = ascending
+                        ? query.OrderBy(s => s.track_name)
+                        : query.OrderByDescending(s => s.track_name);
+                    break;
+                case "album_title":
+                    query = ascending
+                        ? query.OrderBy(s => s.album_title)
+                        : query.OrderByDescending(s => s.album_title);
+                    break;
+                case "artist_name":
+                    query = ascending
+                        ? query.OrderBy(s => s.Artist.artist_name)
+                        : query.OrderByDescending(s => s.Artist.artist_name);
+                    break;
+            }
+
+            // Перетворюємо результат у SongViewModel
+            return query.Select(s => new SongViewModel
+            {
+                song_id = s.song_id,
+                track_name = s.track_name,
+                album_title = s.album_title,
+                artist_name = s.Artist.artist_name,
+                duration = s.duration,
+                release_year = s.release_year,
+                play_count = s.play_count,
+                artist_id = s.artist_id,
+                mp3_file_path = s.mp3_file_path
+            }).ToList();
         }
 
-        public List<Song> FilterSongs(string name, string album, int? artistId, int? fromYear, int? toYear)
+
+        public List<SongViewModel> FilterSongs(string name, string album, int? artistId, int? fromYear, int? toYear)
         {
             var query = db.Songs.Include("Artist").AsQueryable();
 
-            // Применяем фильтры, если они указаны
+            // Застосовуємо фільтри
             if (!string.IsNullOrEmpty(name))
                 query = query.Where(s => s.track_name.Contains(name));
 
@@ -159,18 +204,61 @@ namespace MusicManagementSystem
             if (toYear.HasValue)
                 query = query.Where(s => s.release_year <= toYear.Value);
 
-            return query.ToList();
+            return query.Select(s => new SongViewModel
+            {
+                song_id = s.song_id,
+                track_name = s.track_name,
+                album_title = s.album_title,
+                artist_name = s.Artist.artist_name,
+                duration = s.duration,
+                release_year = s.release_year,
+                play_count = s.play_count,
+                artist_id = s.artist_id,
+                mp3_file_path = s.mp3_file_path
+            }).ToList();
         }
 
-
-        public List<Song> SearchSongs(string searchTerm)
+        public List<SongViewModel> SearchSongs(string searchTerm)
         {
             return db.Songs.Include("Artist")
                 .Where(s => s.track_name.Contains(searchTerm) ||
                             s.album_title.Contains(searchTerm) ||
                             s.Artist.artist_name.Contains(searchTerm))
+                .Select(s => new SongViewModel
+                {
+                    song_id = s.song_id,
+                    track_name = s.track_name,
+                    album_title = s.album_title,
+                    artist_name = s.Artist.artist_name,
+                    duration = s.duration,
+                    release_year = s.release_year,
+                    play_count = s.play_count,
+                    artist_id = s.artist_id,
+                    mp3_file_path = s.mp3_file_path
+                })
                 .ToList();
         }
+
+        
+        public List<SongViewModel> GetAllSongs()
+        {
+            return db.Songs.Include("Artist")
+                .Select(s => new SongViewModel
+                {
+                    song_id = s.song_id,
+                    track_name = s.track_name,
+                    album_title = s.album_title,
+                    artist_name = s.Artist.artist_name,
+                    duration = s.duration,
+                    release_year = s.release_year,
+                    play_count = s.play_count,
+                    artist_id = s.artist_id,
+                    mp3_file_path = s.mp3_file_path
+                })
+                .ToList();
+        }
+
+
 
         public void DeleteSong(int songId)
         {
