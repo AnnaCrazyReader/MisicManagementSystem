@@ -111,38 +111,7 @@ namespace MusicManagementSystem
                 .ToList();
         }
 
-        
-        /*public List<Song> GetAllSongs()
-        {
-            return db.Songs.Include("Artist").ToList();
-        }*/
-
-
-        /*public List<Song> GetSongsSorted(string sortField, bool ascending)
-        {
-            var query = db.Songs.Include("Artist").AsQueryable();
-            // Сортування за різними полями
-            switch (sortField)
-            {
-                case "track_name":
-                    query = ascending
-                        ? query.OrderBy(s => s.track_name)
-                        : query.OrderByDescending(s => s.track_name);
-                    break;
-                case "album_title":
-                    query = ascending
-                        ? query.OrderBy(s => s.album_title)
-                        : query.OrderByDescending(s => s.album_title);
-                    break;
-                case "artist_name":
-                    query = ascending
-                        ? query.OrderBy(s => s.Artist.artist_name)
-                        : query.OrderByDescending(s => s.Artist.artist_name);
-                    break;
-            }
-
-        }*/
-
+       
         public List<SongViewModel> GetSongsSorted(string sortField, bool ascending)
         {
             // Базовий запит

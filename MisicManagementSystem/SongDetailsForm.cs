@@ -34,9 +34,13 @@ namespace MusicManagementSystem
             mediaPlayer.Name = "mediaPlayer";
             mediaPlayer.Size = new System.Drawing.Size(450, 100);
             this.Controls.Add(mediaPlayer);
+            this.Controls.Add(this.lblMp3Status);
 
             // Подписываемся на событие создания дескриптора
             mediaPlayer.HandleCreated += MediaPlayer_HandleCreated;
+            
+            // Додаємо обробник події закриття форми
+            this.FormClosing += SongDetailsForm_FormClosing;
 
             // Настройка дополнительных параметров
             mediaPlayer.CreateControl(); // Важно для создания элемента управления
@@ -111,7 +115,7 @@ namespace MusicManagementSystem
         {
             if (ReadOnly)
             {
-                // Отключаем редактирование в режиме только для чтения
+                // Відключаємо редактування для всіх полів
                 txtSongName.ReadOnly = true;
                 txtAlbumTitle.ReadOnly = true;
                 cmbArtist.Enabled = false;
@@ -120,16 +124,209 @@ namespace MusicManagementSystem
                 numDurationSec.Enabled = false;
                 numPlayCount.Enabled = false;
 
+                // Приховуємо кнопки, які не потрібні в режимі перегляду
                 btnSave.Visible = false;
-                this.Text = "Просмотр песни";
+                btmLoadMP3.Visible = false;  // Кнопка завантаження MP3
+
+                // Залишаємо видимою тільки кнопку відтворення MP3 і кнопку закриття
+                btnCancel.Text = "Закрити";  // Перейменовуємо кнопку "Відмінити" на "Закрити"
+
+                // Змінюємо заголовок форми
+                this.Text = "Перегляд пісні";
+
+                // Якщо це існуюча пісня, перевіряємо наявність MP3
+                if (currentSong != null && !string.IsNullOrEmpty(currentSong.mp3_file_path))
+                {
+                    mp3FilePath = currentSong.mp3_file_path;
+                    string fullPath = Path.Combine(Application.StartupPath, mp3FilePath);
+
+                    // Перевіряємо існування файлу
+                    bool fileExists = File.Exists(fullPath);
+                    UpdateMp3Status(fileExists);
+
+                    // Якщо файл існує, встановлюємо тривалість
+                    if (fileExists)
+                    {
+                        TimeSpan duration = GetMP3Duration(fullPath);
+                        if (duration.TotalSeconds > 0)
+                        {
+                            numDurationMin.Value = (int)duration.TotalMinutes;
+                            numDurationSec.Value = duration.Seconds;
+                        }
+                    }
+                }
             }
         }
 
+        private void InitializeMediaPlayer()
+        {
+            try
+            {
+                // Перевірка чи вже існує медіаплеєр
+                if (mediaPlayer != null)
+                    return;
+
+                mediaPlayer = new AxWMPLib.AxWindowsMediaPlayer();
+                mediaPlayer.Dock = DockStyle.None;
+                mediaPlayer.Location = new Point(20, 300);
+                mediaPlayer.Size = new Size(450, 100);
+                mediaPlayer.CreateControl();
+
+                // Налаштування тільки після створення контролу
+                mediaPlayer.HandleCreated += (s, e) => {
+                    mediaPlayer.settings.autoStart = false;
+                    mediaPlayer.uiMode = "mini";
+                };
+
+                // Додаємо в контроли форми
+                this.Controls.Add(mediaPlayer);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Помилка ініціалізації медіаплеєра: {ex.Message}",
+                    "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private string CopyMp3ToAppFolder(string originalFilePath)
+        {
+            try
+            {
+                // Створюємо директорію для MP3 файлів, якщо вона не існує
+                string appDirectory = Application.StartupPath;
+                string musicDirectory = Path.Combine(appDirectory, "Music");
+
+                if (!Directory.Exists(musicDirectory))
+                {
+                    Directory.CreateDirectory(musicDirectory);
+                }
+
+                // Створюємо унікальне ім'я файлу
+                string fileName = $"{DateTime.Now.Ticks}_{Path.GetFileName(originalFilePath)}";
+                string destFilePath = Path.Combine(musicDirectory, fileName);
+
+                // Копіюємо файл
+                File.Copy(originalFilePath, destFilePath, true);
+
+                // Повертаємо відносний шлях для збереження в БД
+                return Path.Combine("Music", fileName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Помилка копіювання MP3 файлу: {ex.Message}",
+                               "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return string.Empty;
+            }
+        }
+
+        private void PlayMp3File()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(mp3FilePath))
+                {
+                    MessageBox.Show("Файл не вибрано", "Помилка",
+                                  MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Перетворюємо відносний шлях в абсолютний
+                string fullPath = Path.Combine(Application.StartupPath, mp3FilePath);
+
+                // Перевіряємо наявність файлу
+                if (!File.Exists(fullPath))
+                {
+                    MessageBox.Show("Файл не знайдено за вказаним шляхом", "Помилка",
+                                  MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    UpdateMp3Status(false);  // Оновлюємо статус - файл відсутній
+                    return;
+                }
+
+                // Відтворюємо файл
+                mediaPlayer.URL = fullPath;
+                mediaPlayer.Ctlcontrols.play();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Помилка відтворення: {ex.Message}",
+                              "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void UpdateMp3Status(bool fileExists)
+        {
+            // Якщо такого контролу немає, додайте його в дизайнер форми
+            if (fileExists)
+            {
+                lblMp3Status.Text = "MP3 файл завантажено";
+                lblMp3Status.ForeColor = Color.Green;
+                btnPlayMp3.Enabled = true;
+            }
+            else
+            {
+                lblMp3Status.Text = "MP3 файл відсутній";
+                lblMp3Status.ForeColor = Color.Red;
+                btnPlayMp3.Enabled = false;
+            }
+        }
+
+
+        private void LoadExistingMp3(string mp3Path)
+        {
+            if (string.IsNullOrEmpty(mp3Path))
+                return;
+
+            try
+            {
+                string fullPath = Path.Combine(Application.StartupPath, mp3Path);
+
+                if (File.Exists(fullPath))
+                {
+                    mp3FilePath = mp3Path;
+
+                    // Показати інформацію про наявний файл
+                    TimeSpan duration = GetMP3Duration(fullPath);
+
+                    // Оновити інтерфейс
+                    lblMp3Status.Text = "MP3 файл знайдено";
+                    lblMp3Status.ForeColor = Color.Green;
+                    btnPlayMp3.Enabled = true;
+                }
+                else
+                {
+                    // Файл не знайдено, хоч шлях і є в базі
+                    lblMp3Status.Text = "MP3 файл не знайдено";
+                    lblMp3Status.ForeColor = Color.Red;
+                    btnPlayMp3.Enabled = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Помилка завантаження MP3 файлу: {ex.Message}",
+                             "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+               
         private void btnSave_Click(object sender, EventArgs e)
         {
-            currentSong.mp3_file_path = mp3FilePath;
+            // Перевіряємо, чи вказано шлях до MP3
+            if (string.IsNullOrEmpty(mp3FilePath))
+            {
+                // Запитуємо користувача, чи хоче він зберегти пісню без MP3 файлу
+                if (MessageBox.Show("Пісня не містить MP3 файлу. Бажаєте все одно зберегти?",
+                                 "Попередження", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+                {
+                    return;
+                }
+            }
 
-            // Проверка на заполнение обязательных полей
+            // Зберігаємо шлях до MP3 у поточній пісні
+           
+            currentSong.mp3_file_path = mp3FilePath;
+            // Зупиняємо відтворення перед закриттям
+            StopPlayback();
+
+            // Провірка на заповненість обвязкових полів
             if (string.IsNullOrWhiteSpace(txtSongName.Text))
             {
                 MessageBox.Show("Введите название песни", "Ошибка",
@@ -208,7 +405,10 @@ namespace MusicManagementSystem
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            // Закрываем форму с результатом Cancel
+            // Явно зупиняємо відтворення
+            StopPlayback();
+
+            // Закриваємо форму з результатом Cancel
             this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
@@ -217,47 +417,53 @@ namespace MusicManagementSystem
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.Filter = "MP3 файлы (*.mp3)|*.mp3|Все файлы (*.*)|*.*";
-                openFileDialog.Title = "Выберите MP3 файл";
+                openFileDialog.Filter = "MP3 файли (*.mp3)|*.mp3|Всі файли (*.*)|*.*";
+                openFileDialog.Title = "Виберіть MP3 файл";
 
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     try
                     {
-                        mp3FilePath = openFileDialog.FileName;
+                        string originalFilePath = openFileDialog.FileName;
 
-                        // Извлекаем название песни из имени файла (без расширения)
-                        string fileName = Path.GetFileNameWithoutExtension(mp3FilePath);
-                        if (string.IsNullOrEmpty(txtSongName.Text))
+                        // Копіюємо файл в директорію програми і отримуємо відносний шлях
+                        string relativePath = CopyMp3ToAppFolder(originalFilePath);
+
+                        if (!string.IsNullOrEmpty(relativePath))
                         {
-                            txtSongName.Text = fileName;
+                            // Зберігаємо відносний шлях для запису в БД
+                            mp3FilePath = relativePath;
+
+                            // Отримуємо абсолютний шлях для програвання
+                            string fullPath = Path.Combine(Application.StartupPath, relativePath);
+
+                            // Визначаємо тривалість
+                            TimeSpan duration = GetMP3Duration(fullPath);
+                            numDurationMin.Value = (int)duration.TotalMinutes;
+                            numDurationSec.Value = duration.Seconds;
+
+                            // Підказка користувачу
+                            MessageBox.Show($"MP3 файл успішно завантажено\nТривалість: {duration:mm\\:ss}",
+                                          "Інформація", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                            // Оновлюємо статус
+                            UpdateMp3Status(true);
+
+                            // Пропонуємо відтворити файл
+                            if (MessageBox.Show("Бажаєте прослухати завантажену пісню?",
+                                             "Відтворення", MessageBoxButtons.YesNo,
+                                             MessageBoxIcon.Question) == DialogResult.Yes)
+                            {
+                                PlayMp3File();
+                            }
                         }
-
-                        // Определяем длительность MP3-файла
-                        TimeSpan duration = GetMP3Duration(mp3FilePath);
-
-                        // Устанавливаем значения в numericUpDown для минут и секунд
-                        numDurationMin.Value = (int)duration.TotalMinutes;
-                        numDurationSec.Value = duration.Seconds;
-
-                        MessageBox.Show($"MP3 файл загружен.\nДлительность: {duration:mm\\:ss}",
-                                      "Информация", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Ошибка при загрузке файла: {ex.Message}",
-                                      "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"Помилка при завантаженні файлу: {ex.Message}",
+                                       "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
-
-                // После успешной загрузки предлагаем воспроизвести
-                if (MessageBox.Show("MP3 файл загружен. Воспроизвести?",
-                                  "Информация", MessageBoxButtons.YesNo,
-                                  MessageBoxIcon.Question) == DialogResult.Yes)
-                {
-                    PlayMp3File();
-                }
-
             }
         }
 
@@ -277,32 +483,45 @@ namespace MusicManagementSystem
             }
         }
 
-        private void PlayMp3File()
-        {
-            if (string.IsNullOrEmpty(mp3FilePath) || !File.Exists(mp3FilePath))
-            {
-                MessageBox.Show("Файл MP3 не выбран или не существует.",
-                              "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            try
-            {
-                // Устанавливаем URL для проигрывания (локальный файл)
-                mediaPlayer.URL = mp3FilePath;
-                // Включаем автоматическое воспроизведение
-                mediaPlayer.Ctlcontrols.play();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка воспроизведения: {ex.Message}",
-                              "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
         private void btnPlayMp3_Click(object sender, EventArgs e)
         {
             PlayMp3File();
+        }
+
+        private void StopPlayback()
+        {
+            try
+            {
+                if (mediaPlayer != null)
+                {
+                    if (mediaPlayer.playState == WMPLib.WMPPlayState.wmppsPlaying ||
+                        mediaPlayer.playState == WMPLib.WMPPlayState.wmppsPaused)
+                    {
+                        mediaPlayer.Ctlcontrols.stop();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Помилка зупинки відтворення: {ex.Message}");
+            }
+        }
+
+        private void SongDetailsForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // Зупиняємо відтворення MP3 при закритті форми
+            try
+            {
+                if (mediaPlayer != null && mediaPlayer.playState == WMPLib.WMPPlayState.wmppsPlaying)
+                {
+                    mediaPlayer.Ctlcontrols.stop();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Логуємо помилку, але не показуємо повідомлення, бо форма закривається
+                System.Diagnostics.Debug.WriteLine($"Помилка зупинки відтворення: {ex.Message}");
+            }
         }
     }
 }

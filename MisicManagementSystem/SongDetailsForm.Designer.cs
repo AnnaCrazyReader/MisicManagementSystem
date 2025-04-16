@@ -13,9 +13,19 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing)
             {
-                components.Dispose();
+                if (components != null)
+                {
+                    components.Dispose();
+                }
+
+                // Обов'язково звільніть ресурси медіаплеєра
+                if (mediaPlayer != null)
+                {
+                    mediaPlayer.Dispose();
+                    mediaPlayer = null;
+                }
             }
             base.Dispose(disposing);
         }
@@ -48,6 +58,7 @@
             this.btmLoadMP3 = new System.Windows.Forms.Button();
             this.axWindowsMediaPlayer1 = new AxWMPLib.AxWindowsMediaPlayer();
             this.btnPlayMp3 = new System.Windows.Forms.Button();
+            this.lblMp3Status = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numReleaseYear)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numDurationMin)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numDurationSec)).BeginInit();
@@ -107,7 +118,7 @@
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(241, 362);
+            this.btnSave.Location = new System.Drawing.Point(565, 243);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
             this.btnSave.TabIndex = 7;
@@ -117,7 +128,7 @@
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(241, 333);
+            this.btnCancel.Location = new System.Drawing.Point(565, 282);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 8;
@@ -190,7 +201,7 @@
             // 
             // btmLoadMP3
             // 
-            this.btmLoadMP3.Location = new System.Drawing.Point(15, 333);
+            this.btmLoadMP3.Location = new System.Drawing.Point(344, 243);
             this.btmLoadMP3.Name = "btmLoadMP3";
             this.btmLoadMP3.Size = new System.Drawing.Size(140, 23);
             this.btmLoadMP3.TabIndex = 16;
@@ -204,12 +215,12 @@
             this.axWindowsMediaPlayer1.Location = new System.Drawing.Point(344, 42);
             this.axWindowsMediaPlayer1.Name = "axWindowsMediaPlayer1";
             this.axWindowsMediaPlayer1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axWindowsMediaPlayer1.OcxState")));
-            this.axWindowsMediaPlayer1.Size = new System.Drawing.Size(264, 314);
+            this.axWindowsMediaPlayer1.Size = new System.Drawing.Size(296, 150);
             this.axWindowsMediaPlayer1.TabIndex = 17;
             // 
             // btnPlayMp3
             // 
-            this.btnPlayMp3.Location = new System.Drawing.Point(15, 362);
+            this.btnPlayMp3.Location = new System.Drawing.Point(344, 279);
             this.btnPlayMp3.Name = "btnPlayMp3";
             this.btnPlayMp3.Size = new System.Drawing.Size(140, 23);
             this.btnPlayMp3.TabIndex = 18;
@@ -217,11 +228,21 @@
             this.btnPlayMp3.UseVisualStyleBackColor = true;
             this.btnPlayMp3.Click += new System.EventHandler(this.btnPlayMp3_Click);
             // 
+            // lblMp3Status
+            // 
+            this.lblMp3Status.AutoSize = true;
+            this.lblMp3Status.Location = new System.Drawing.Point(353, 207);
+            this.lblMp3Status.Name = "lblMp3Status";
+            this.lblMp3Status.Size = new System.Drawing.Size(100, 13);
+            this.lblMp3Status.TabIndex = 19;
+            this.lblMp3Status.Text = "Статус MP3 файлу";
+            // 
             // SongDetailsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(652, 450);
+            this.ClientSize = new System.Drawing.Size(652, 326);
+            this.Controls.Add(this.lblMp3Status);
             this.Controls.Add(this.btnPlayMp3);
             this.Controls.Add(this.axWindowsMediaPlayer1);
             this.Controls.Add(this.btmLoadMP3);
@@ -275,5 +296,6 @@
         private System.Windows.Forms.Button btmLoadMP3;
         private AxWMPLib.AxWindowsMediaPlayer axWindowsMediaPlayer1;
         private System.Windows.Forms.Button btnPlayMp3;
+        private System.Windows.Forms.Label lblMp3Status;
     }
 }

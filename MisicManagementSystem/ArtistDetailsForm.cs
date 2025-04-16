@@ -52,20 +52,28 @@ namespace MusicManagementSystem
         {
             if (ReadOnly)
             {
-                // Отключаем редактирование
+                // Відключаємо редактування
                 txtArtistName.ReadOnly = true;
                 txtCountry.ReadOnly = true;
                 numBirthYear.Enabled = false;
                 cmbGenre.Enabled = false;
 
-                // Скрываем кнопку сохранения
+                // Скриваємо кнопку сохранения
                 btnSave.Visible = false;
 
-                // Скрываем кнопку завантаження фото
+                // Скриваємо кнопку завантаження фото
                 btnLoadPic.Visible = false;
 
-                // Меняем заголовок формы
-                this.Text = "Просмотр исполнителя";
+                // Додатково змінюємо заголовок форми
+                this.Text = "Перегляд виконавця";
+
+                // Можна додати кнопку закриття форми, якщо ще немає
+                Button btnClose = new Button();
+                btnClose.Text = "Закрити";
+                btnClose.Location = new Point(btnSave.Location.X, btnSave.Location.Y);
+                btnClose.Size = btnSave.Size;
+                btnClose.Click += (s, args) => this.Close();
+                this.Controls.Add(btnClose);
             }
         }
 

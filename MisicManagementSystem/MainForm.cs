@@ -234,9 +234,24 @@ namespace MusicManagementSystem
             if (dgvArtists.SelectedRows.Count == 0) return;
 
             var selectedArtist = dgvArtists.SelectedRows[0].DataBoundItem as Artist;
-            var form = new ArtistDetailsForm(selectedArtist);
-            form.ReadOnly = true;  // Режим тільки для перегляду
-            form.ShowDialog();
+
+            // Завантажуємо художника з бази даних, щоб отримати всі актуальні дані
+            using (var context = new MusicDbContext())
+            {
+                selectedArtist = context.Artists.Find(selectedArtist.artist_id);
+            }
+
+            if (selectedArtist != null)
+            {
+                var form = new ArtistDetailsForm(selectedArtist);
+                form.ReadOnly = true;  // Встановлюємо режим тільки для перегляду
+                form.ShowDialog();
+            }
+            else
+            {
+                MessageBox.Show("Виконавця не знайдено в базі даних.",
+                    "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -284,14 +299,22 @@ namespace MusicManagementSystem
         {
             if (dgvSongs.SelectedRows.Count == 0) return;
 
-            var selectedSong = dgvSongs.SelectedRows[0].DataBoundItem as Song;
+            var selectedSong = dgvSongs.SelectedRows[0].DataBoundItem as SongViewModel;
 
-            if (MessageBox.Show($"Вы уверены, что хотите удалить песню '{selectedSong.track_name}'?",
-                              "Подтверждение удаления",
-                              MessageBoxButtons.YesNo) == DialogResult.Yes)
+            if (MessageBox.Show($"Ви впевнені, що хочете видалити пісню '{selectedSong.track_name}'?",
+                               "Підтвердження видалення",
+                               MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
-                dataManager.DeleteSong(selectedSong.song_id);
-                LoadSongsData();
+                try
+                {
+                    dataManager.DeleteSong(selectedSong.song_id);
+                    LoadSongsData();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Помилка при видаленні пісні: {ex.Message}",
+                        "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
@@ -299,10 +322,29 @@ namespace MusicManagementSystem
         {
             if (dgvSongs.SelectedRows.Count == 0) return;
 
-            var selectedSong = dgvSongs.SelectedRows[0].DataBoundItem as Song;
-            var form = new SongDetailsForm(selectedSong);
-            form.ReadOnly = true;  // Режим только для чтения
-            form.ShowDialog();
+            // Отримуємо вибрану пісню
+            var selectedViewModel = dgvSongs.SelectedRows[0].DataBoundItem as SongViewModel;
+
+            // Завантажуємо повний об'єкт Song з бази даних
+            Song selectedSong = null;
+            using (var context = new MusicDbContext())
+            {
+                selectedSong = context.Songs
+                    .Include("Artist")
+                    .FirstOrDefault(s => s.song_id == selectedViewModel.song_id);
+            }
+
+            if (selectedSong != null)
+            {
+                var form = new SongDetailsForm(selectedSong);
+                form.ReadOnly = true;  // Встановлюємо режим тільки для перегляду
+                form.ShowDialog();
+            }
+            else
+            {
+                MessageBox.Show("Пісню не знайдено в базі даних.",
+                    "Помилка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
